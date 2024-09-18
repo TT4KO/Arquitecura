@@ -1,0 +1,70 @@
+ORG 3100H
+MANDAR: PUSH AX
+        MOV CL, 0
+        MOV BX, SP
+        ADD BX, 5
+POLL: IN AL, PA
+      AND AL, 1
+      JNZ POLL
+      MOV AL, [BX]
+      OUT PB, AL
+      IN AL, PA
+      OR AL, 00000010B
+      OUT PA, AL
+      AND AL, 11111101B
+      OUT PA, AL
+      DEC CL
+      JNZ POLL
+IRET
+
+
+ORG 3000H
+IMPRIMIR:PUSH AX
+         PUSH BX   
+         MOV BX, SP
+         ADD BX, 7
+ACA:     INT 6
+         DEC BX
+         DEC CL
+         JNZ ACA
+         MOV AL, 20
+         OUT EOI, AL
+         POP BX
+         POP AX
+IRET
+
+        
+ORG 3200H
+CONFPIO: MOV AL, 11111101B
+         OUT CA, AL
+         MOV AL, 0
+         OUT CB, AL
+         RET
+
+ORG 1000H
+MSJ2 DB "INGRESE F10 PARA COMENZAR"
+MSJ DB ?
+
+ORG 2000H
+CALL CONFPIO
+
+MOV BX, 16
+MOV AX, IMPRIMIR
+MOV [BX], AX
+CLI
+MOV AL, 11111110B
+OUT IMR, AL
+
+MOV AL, 4
+OUT INT0, AL
+STI
+MOV BX, OFFSET MSJ2
+MOV AL, OFFSET MSJ - OFFSET MSJ2
+INT 7
+MOV CL, 10
+MOV DL, 0
+LAZO: CMP DL, 1
+      JNZ LAZO
+CALL MANDAR
+INT 0
+END
