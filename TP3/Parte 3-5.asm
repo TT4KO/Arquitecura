@@ -1,0 +1,60 @@
+ORG 3000H
+LUCES:PUSH AX
+      PUSH BX
+      PUSH DX
+      PUSH CX
+      MOV BX, SP
+      MOV AL, 0
+      OUT CONT, AL
+      IN AL, PA
+      AND AL, 10000000B
+      JZ APAGADAS
+      MOV AL, 0FFH
+      OUT PB, AL
+      MOV [BX], AL
+      POP AX
+      POP BX
+      POP DX
+      POP CX
+APAGADAS: IRET
+
+ORG 3100H
+LUCES12:IN AL, PA
+        CMP AL, 128
+        JNZ FIN
+
+FIN:    
+        MOV AL, 20
+        OUT EOI, AL
+        INC DX
+        IRET
+
+ORG 1000H
+LEDS DW ?
+
+ORG 2000H
+MOV AL, 0
+OUT CB, AL
+MOV AL, 0FFH
+OUT CA, AL
+
+MOV BX, 16
+MOV AX, LUCES12
+MOV [BX], AX
+CLI
+MOV AL, 11111101B
+OUT IMR, AL
+MOV AL, 4
+OUT INT1, AL
+MOV AL, 6
+OUT COMP, AL
+STI
+MOV AL, 0
+OUT CONT, AL
+MOV DX, 0
+CALL LUCES
+LOP: CMP DX, 1
+     JNZ LOP
+
+INT 0
+END
