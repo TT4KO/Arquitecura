@@ -1,0 +1,58 @@
+ORG 1000H
+MSJ DB "HOLA!"
+FIN DB ?
+
+ORG 3100H
+EFE10:  INC CL
+        MOV AL, 0FFH
+        OUT IMR, AL
+        MOV AL, 20
+        OUT EOI, AL
+        IRET
+
+ORG 3000H
+IMPRIMIR:PUSH AX
+         MOV AL, [BX]
+         OUT PB, AL
+         INC  BX
+         CMP BX, OFFSET FIN 
+         JNZ CONTINUAR
+         INC CL
+         MOV AL, 0FFH
+         OUT IMR, AL
+CONTINUAR:MOV AL, 0
+          OUT CONT, AL
+          MOV AL, 20
+          OUT EOI, AL
+          POP AX
+          IRET
+
+ORG 2000H
+MOV BX, 16
+MOV AX, IMPRIMIR
+MOV [BX], AX
+MOV BX, 20
+MOV AX, EFE10
+MOV [BX], AX
+MOV AL, 0
+OUT CB, AL
+MOV BX, OFFSET MSJ
+
+CLI
+MOV AL, 11111100B
+OUT IMR, AL
+MOV AL, 4
+OUT INT1, AL
+MOV AL, 5
+OUT INT0, AL
+MOV AL, 5
+OUT COMP, AL
+MOV AL, 0
+OUT CONT, AL
+STI
+
+MOV CL, 0
+LOOP: CMP CL, 1
+      JNZ LOOP
+INT 0
+END
