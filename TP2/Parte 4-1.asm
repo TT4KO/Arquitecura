@@ -1,31 +1,30 @@
+ORG 1000H
+CAR DB 11101101B
+COD DB "GANASTE"
+
 ORG 3000H
-IZQUIERDA: ADD AL, AL
-           ADC AL, 0
-           RET
-                     
-ORG 3200H
-DERECHA: MOV AL, CL
-         ADD AL, AL
+ROTARIZQ:ADD AL, AL
          ADC AL, 0
-         DEC DL
-         JNZ DERECHA
          RET
+
+ORG 3100H
+DERECHA:MOV CL, 7
+OTRO:CALL ROTARIZQ
+     DEC CL
+     JNZ OTRO
+     RET
 
 ORG 2000H
 MOV AL, 0
 OUT CB, AL
 MOV AL, 1
-LOOP: OUT PB, AL
-      CALL IZQUIERDA
-      CMP AL, 10000000B
-      JNZ LOOP
-LOOPD:MOV DL, 8
-      MOV CL, 6
-      OUT PB, AL
-      CALL DERECHA
-      DEC CL
-      CMP AL, 1
-      JNZ LOOPD
-      JMP LOOP
+LOOP:CALL ROTARIZQ
+     OUT PB, AL
+     CMP AL, 128
+     JNZ LOOP
+SI:  CALL DERECHA
+     OUT PB, AL
+     CMP AL, 1
+     JNZ SI
 INT 0
 END
